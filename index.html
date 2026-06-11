@@ -2,72 +2,64 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Medic MDT - Full Operational Mode</title>
+    <title>Medic MDT - V5.5 Full Edition</title>
     <style>
-        /* CSS-Grundgerüst für sauberes Layout */
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #0a0c10; color: #e2e8f0; height: 100vh; overflow: hidden; font-size: 13px; }
+        :root { --bg-main: #0a0c10; --bg-card: rgba(18, 22, 32, 0.85); --bg-input: rgba(9, 11, 17, 0.9); --border-color: #242b3d; --text-main: #e2e8f0; --accent-green: #22c55e; --accent-blue: #3b82f6; --accent-red: #ef4444; --accent-amber: #f59e0b; }
+        body { font-family: sans-serif; background: var(--bg-main); color: var(--text-main); height: 100vh; padding: 10px; font-size: 13px; overflow: hidden; }
         
-        /* Layout-Container */
-        .window-frame { display: flex; flex-direction: column; height: 100%; border: 1px solid #242b3d; }
-        .drag-header { height: 40px; -webkit-app-region: drag; background: #0d1117; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; border-bottom: 2px dashed #242b3d; }
-        .container { display: flex; flex: 1; padding: 12px; gap: 12px; overflow: hidden; }
+        #login-screen { position: fixed; inset: 0; background: rgba(10, 12, 16, 0.96); z-index: 9999; display: flex; justify-content: center; align-items: center; }
+        .login-box { background: #121620; border: 1px solid var(--border-color); padding: 30px; border-radius: 8px; width: 350px; text-align: center; }
         
-        /* Panels */
-        .left-panel { width: 320px; display: flex; flex-direction: column; gap: 8px; }
-        .right-panel { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+        #mdt-container { display: none; height: 100%; flex-direction: column; gap: 10px; }
+        .main-split { display: grid; grid-template-columns: 320px 1fr; gap: 12px; flex: 1; min-height: 0; }
+        .input-field { padding: 8px; background: var(--bg-input); border: 1px solid var(--border-color); color: white; border-radius: 4px; width: 100%; }
+        .triage-btn { flex: 1; padding: 8px; background: var(--bg-input); border: 1px solid var(--border-color); color: #7f8ea3; cursor: pointer; border-radius: 4px; }
+        .triage-btn.active.green { border-color: var(--accent-green); color: var(--accent-green); background: #052e16; }
         
-        /* Elemente */
-        .input-field { padding: 8px; background: #090b11; border: 1px solid #242b3d; color: white; border-radius: 4px; width: 100%; }
-        .btn { padding: 8px; cursor: pointer; border: 1px solid #242b3d; color: white; border-radius: 4px; background: #21262d; font-weight: bold; }
-        .btn:hover { border-color: #3b82f6; }
-        .history-list { list-style: none; overflow-y: auto; flex: 1; font-size: 12px; }
-        
-        
-        #login-screen { position: absolute; inset: 0; background: rgba(10, 12, 16, 0.96); z-index: 9999; display: flex; justify-content: center; align-items: center; }
-        .login-box { background: #121620; padding: 30px; border: 2px solid #242b3d; border-radius: 8px; width: 380px; text-align: center; }
+        .item-row { display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: var(--bg-card); border: 1px solid var(--border-color); margin-bottom: 4px; border-radius: 4px; }
+        .qty-btn { width: 26px; height: 26px; background: var(--bg-input); border: 1px solid var(--border-color); color: white; cursor: pointer; }
     </style>
 </head>
 <body>
 
-<div class="window-frame">
-    <div class="drag-header">
-        <span style="color:#22c55e; font-weight:bold;">MEDIC LOGISTICS MDT // V5.5</span>
-        <button class="btn" style="-webkit-app-region: no-drag;" onclick="window.close()">✕</button>
+<div id="login-screen">
+    <div class="login-box">
+        <h3>MDT LOGIN</h3>
+        <input type="text" id="login-id" class="input-field" placeholder="ID" style="margin-bottom:10px;">
+        <input type="password" id="login-password" class="input-field" placeholder="Passwort" style="margin-bottom:10px;">
+        <button class="btn" style="width:100%; padding:10px;" onclick="checkLogin()">Login</button>
     </div>
+</div>
 
-    <div id="login-screen">
-        <div class="login-box">
-            <h2>🔒 MDT LOGIN</h2>
-            <input type="text" id="login-id" class="input-field" placeholder="Dienstnummer (ID)" style="margin: 10px 0;">
-            <input type="password" id="login-password" class="input-field" placeholder="Sicherheitsschlüssel" style="margin-bottom: 10px;">
-            <button class="btn" style="width:100%; background: #3b82f6;" onclick="checkLogin()">MDT freischalten</button>
-        </div>
-    </div>
-
-    <div class="container" id="mdt-container" style="display:none;">
+<div id="mdt-container" class="container">
+    <div class="main-split">
         <div class="left-panel">
+            <div class="triage-zone" style="display:flex; gap:5px;">
+                <button class="triage-btn active green" id="triage-stable" onclick="setTriage('stable')">STABIL</button>
+                <button class="triage-btn" id="triage-critical" onclick="setTriage('critical')">KRITISCH</button>
+            </div>
             <input type="text" id="patient-name" class="input-field" placeholder="Patientenname">
-            <button class="btn" style="background:#22c55e;" onclick="copyInvoice()">📋 Bericht abschicken</button>
-            <div id="history-box" style="flex:1; border:1px dashed #242b3d; padding:10px; background:#090b11;">
-                <p>Live-Logbuch:</p>
-                <ul id="history-list" class="history-list"></ul>
+            <button class="btn" onclick="copyInvoice()">📋 Bericht abschicken</button>
+            <div id="history-box" style="flex:1; overflow-y:auto; border:1px solid #242b3d; padding:5px;">
+                <ul id="history-list" style="list-style:none;"></ul>
             </div>
         </div>
         <div class="right-panel">
-            <div id="items-container" style="overflow-y:auto; flex:1;"></div>
+            <div id="items-container"></div>
         </div>
     </div>
 </div>
 
 <script>
-    // Datenbank & State
     const medicDatabase = { "04": { name: "Dr. Herbert Meier", pass: "12345" } };
-    let qtys = {}; 
-    let masterHistory = JSON.parse(localStorage.getItem('medic_history') || "[]");
+    const items = [
+        { name: "Field Dressing", price: 40 },
+        { name: "Epinephrine", price: 83 },
+        { name: "Morphine", price: 87 }
+    ];
+    let qtys = { "Field Dressing": 0, "Epinephrine": 0, "Morphine": 0 };
 
-    // Login-Logik
     function checkLogin() {
         const id = document.getElementById('login-id').value;
         const pass = document.getElementById('login-password').value;
@@ -75,35 +67,33 @@
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('mdt-container').style.display = 'flex';
             renderCatalog();
-            updateHistoryDOM();
-        } else {
-            alert("Zugriff verweigert!");
-        }
+        } else { alert("Falsch!"); }
     }
 
-    // Katalog rendern
     function renderCatalog() {
-        const container = document.getElementById('items-container');
-        container.innerHTML = "<div>Katalog geladen.</div>";
+        const cont = document.getElementById('items-container');
+        cont.innerHTML = items.map(i => `
+            <div class="item-row">
+                <span style="flex:1">${i.name}</span>
+                <button class="qty-btn" onclick="updateQty('${i.name}', -1)">-</button>
+                <span>${qtys[i.name]}</span>
+                <button class="qty-btn" onclick="updateQty('${i.name}', 1)">+</button>
+            </div>
+        `).join('');
     }
 
-    // Bericht kopieren & speichern
+    function updateQty(name, delta) {
+        qtys[name] = Math.max(0, qtys[name] + delta);
+        renderCatalog();
+    }
+
+    function setTriage(level) {
+        document.querySelectorAll('.triage-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('triage-' + level).classList.add('active');
+    }
+
     function copyInvoice() {
-        const pName = document.getElementById('patient-name').value;
-        const report = `Bericht: ${pName} | Zeit: ${new Date().toLocaleTimeString()}`;
-        
-        navigator.clipboard.writeText(report).then(() => {
-            masterHistory.unshift({ name: pName, time: new Date().toLocaleTimeString() });
-            localStorage.setItem('medic_history', JSON.stringify(masterHistory));
-            updateHistoryDOM();
-            alert("Bericht kopiert!");
-        });
-    }
-
-    // Historie aktualisieren
-    function updateHistoryDOM() {
-        const list = document.getElementById('history-list');
-        list.innerHTML = masterHistory.map(h => `<li>🕒 ${h.time} - ${h.name}</li>`).join('');
+        alert("Bericht für " + document.getElementById('patient-name').value + " erstellt!");
     }
 </script>
 </body>
