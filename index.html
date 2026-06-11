@@ -68,6 +68,46 @@
   </div>
 </div>
 
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root { --bg: #0a0c10; --card: #121620; --border: #242b3d; --text: #e2e8f0; --accent: #3b82f6; --green: #22c55e; }
+  
+  body { font-family: sans-serif; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; padding: 10px; }
+  
+  .container { display: flex; flex-direction: column; height: 100%; gap: 10px; }
+  
+  .main-split { 
+    display: flex; 
+    gap: 15px; 
+    flex: 1; 
+    min-height: 0; /* Wichtig für Scrollen! */
+    overflow: hidden; 
+  }
+
+  .left-panel { 
+    width: 320px; 
+    flex: 0 0 320px; /* Erzwingt feste 320px Breite */
+    display: flex; 
+    flex-direction: column; 
+    gap: 8px; 
+  }
+
+  .right-panel { 
+    flex: 1; /* Nimmt alles, was übrig bleibt */
+    display: flex; 
+    flex-direction: column; 
+    gap: 8px; 
+    min-width: 0; /* Verhindert, dass Flexbox-Elemente sich verzerren */
+  }
+
+  /* Sicherstellen, dass das Logbuch nicht das Layout sprengt */
+  #items-container { flex: 1; overflow-y: auto; }
+  .history-box { flex: 0 0 200px; overflow-y: auto; background: #090b11; padding: 10px; }
+  
+  .section-label { font-size: 11px; font-weight: bold; padding: 8px; background: rgba(22, 27, 38, 0.8); border-left: 3px solid var(--accent); cursor: pointer; }
+  .item-row { display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: var(--card); border: 1px solid var(--border); }
+</style>
+  
 <script>
   // 1. DATABASE & CONFIG
   const medicDatabase = { "04": { name: "Dr. Herbert Meier", pass: "1234" } };
