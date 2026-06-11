@@ -72,7 +72,8 @@
 
 <script>
   const { remote } = require('electron');
-  const medicDatabase = { "04": { name: "Dr. Herbert Meier", pass: "12345" } };
+  const medicDatabase = { "04": { name: "Dr. Herbert Meier", pass: "12345" },
+                          "14": {name: "Test", pass:"1"};
   let currentTriage = 'stable';
   
   function checkLogin() {
